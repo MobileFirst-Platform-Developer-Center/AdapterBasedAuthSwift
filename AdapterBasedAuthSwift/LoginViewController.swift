@@ -38,8 +38,8 @@ class LoginViewController: UIViewController {
     }
     
     @IBAction func login(sender: AnyObject) {
-        var myInvocationData = WLProcedureInvocationData(adapterName: "AuthAdapter", procedureName: "submitAuthentication")
-        myInvocationData.parameters = [self.username.text, self.password.text]
+        let myInvocationData = WLProcedureInvocationData(adapterName: "AuthAdapter", procedureName: "submitAuthentication")
+        myInvocationData.parameters = [self.username.text!, self.password.text!]
         self.challengeHandler?.submitAdapterAuthentication(myInvocationData, options: nil)
      }
     
@@ -51,7 +51,7 @@ class LoginViewController: UIViewController {
         }
     }
     
-    required init(coder aDecoder: NSCoder)
+    required init?(coder aDecoder: NSCoder)
     {
         super.init(coder: aDecoder)
     }
