@@ -29,28 +29,38 @@ class MyChallengeHandler: ChallengeHandler {
     override func isCustomResponse(response: WLResponse!) -> Bool {
         if response != nil && response.responseJSON != nil {
             let responseJson: NSDictionary = response.responseJSON as NSDictionary
-            if responseJson.objectForKey("authRequired") != nil{
-                return responseJson.objectForKey("authRequired") as! Bool
+            if responseJson.objectForKey("authStatus") != nil{
+                return true
             }
         }
         return false
     }
     
     override func handleChallenge(response: WLResponse!) {
-        NSLog("A login form should appear")
-        if self.vc.navigationController?.visibleViewController!.isKindOfClass(LoginViewController) == true {
-            dispatch_async(dispatch_get_main_queue()) {
-                let loginController : LoginViewController! = self.vc.navigationController?.visibleViewController as? LoginViewController
-                loginController.errorMsg.hidden = false
+        let responseJson: NSDictionary = response.responseJSON as NSDictionary
+        let authStatus = responseJson.objectForKey("authStatus") as! String
+        
+        if (authStatus.isEqual("complete") == true) {
+            self.vc.navigationController?.popViewControllerAnimated(true)
+            self.submitSuccess(response)
+        }
+        else{
+            NSLog("A login form should appear")
+            if self.vc.navigationController?.visibleViewController!.isKindOfClass(LoginViewController) == true {
+                dispatch_async(dispatch_get_main_queue()) {
+                    let loginController : LoginViewController! = self.vc.navigationController?.visibleViewController as? LoginViewController
+                    loginController.errorMsg.hidden = false
+                }
+            } else {
+                self.vc.performSegueWithIdentifier("showLogin", sender: self.vc)
+                dispatch_async(dispatch_get_main_queue()) {
+                    let loginController : LoginViewController! = self.vc.navigationController?.visibleViewController as? LoginViewController
+                    loginController.challengeHandler = self
+                    loginController.errorMsg.hidden = true
+                }
+                
             }
-        } else {
-            self.vc.performSegueWithIdentifier("showLogin", sender: self.vc)
-            dispatch_async(dispatch_get_main_queue()) {
-                let loginController : LoginViewController! = self.vc.navigationController?.visibleViewController as? LoginViewController
-                loginController.challengeHandler = self
-                loginController.errorMsg.hidden = true
-            }
-            
+
         }
     }
     
